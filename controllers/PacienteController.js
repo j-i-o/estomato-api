@@ -1,0 +1,71 @@
+const db = require('../models')
+
+const Paciente = db.paciente
+
+const addPaciente = async (req, res) => {
+
+  let info = {
+    nombre: req.body.nombre,
+    apellido: req.body.apellido,
+    edad: req.body.edad,
+    observacion: req.body.observacion ?? '',
+    sexoId: req.body.sexo
+  }
+
+  const paciente = await Paciente.create(info)
+  res.status(200).send(paciente)
+}
+
+const getPacientes = async (req, res) => {
+
+  let pacientes = await Paciente.findAll({ include: ["sexo"] })
+  res.status(200).send(pacientes)
+}
+
+const getPacienteById = async (req, res) => {
+
+  let id = req.params.id
+  let paciente = await Paciente.findByPk(id)
+  res.status(200).send(paciente)
+}
+
+const deletePaciente = async (req, res) => {
+
+  let id = req.params.id
+  try {
+    let lesiones = await db.lesion.findAll({ where: { pacienteId: id } })
+    for (let lesion of lesiones) {
+      await db.consulta.destroy({
+        where: { lesionId: lesion.id }
+      })
+    }
+    await db.lesion.destroy({
+      where: { pacienteId: id },
+    })
+    await Paciente.destroy({
+      where: { id: id }
+    })
+    res.status(200).send('Paciente borrado con todos sus registros')
+  } catch (error) {
+    res.status(500).send("Error: " + error.message)
+  }
+}
+
+const updatePaciente = async (req, res) => {
+
+  //! Te tira que todo bien cuando no existe la fila elegida para actualizar
+  if (Object.keys(req.body).every(el => Object.keys(Paciente.rawAttributes).includes(el))) {
+    await Paciente.update(req.body, { where: { id: req.params.id } })
+    res.status(200).send("Datos actualizados correctamente")
+  } else {
+    res.status(400).send("Datos incorrectos para la actualización")
+  }
+}
+
+module.exports = {
+  addPaciente,
+  getPacientes,
+  getPacienteById,
+  updatePaciente,
+  deletePaciente
+}
