@@ -9,19 +9,24 @@ const Lesion = db.lesion
   ubicacion = [int]
 */
 const addLesion = async (req, res) => {
-  let info = {
-    pacienteId: req.body.paciente,
-    estadoId: req.body.estado,
-    nombLesionId: req.body.nombLesion,
-    ultAct: new Date()
-  }
-  const lesion = await Lesion.create(info)
-  let ubicaciones = req.body.ubicacion
+  
+  const lesion = await Lesion.create({
+    pacienteId: req.body.lesion.paciente,
+    estadoId: req.body.lesion.estado,
+    nombLesionId: req.body.lesion.nombLesion,
+    ultAct: req.body.consulta.fecha ?? new Date()
+  })
+  let ubicaciones = req.body.lesion.ubicacion
   ubicaciones.forEach(async id => {
     const ubicacion = await db.ubicacion.findByPk(id)
     await lesion.addUbicacion(ubicacion)
   });
-  res.status(200).send(lesion)
+
+  if(req.body.full){
+    return lesion
+  }else{
+    res.status(200).send(lesion)
+  }
 }
 
 const getLesiones = async (req, res) => {

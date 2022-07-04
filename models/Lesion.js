@@ -13,6 +13,23 @@ module.exports = (sequelize, DataTypes) => {
     }
   )
 
-  return Lesion
+  Lesion.associate = function (db) {
+    db.lesion.belongsTo(db.nombLesion, {
+      foreignKey: "nombLesionId",
+      as: "nombLesion"
+    })
+    db.lesion.belongsTo(db.paciente, {
+      foreignKey: "pacienteId",
+      as: "paciente"
+    })
+    db.lesion.belongsTo(db.estado, {
+      foreignKey: "estadoId",
+      as: "estado"
+    })
+    db.lesion.hasMany(db.consulta, { as: "consulta" })
+    db.lesion.belongsToMany(db.ubicacion, { through: 'LesionUbicacion' })
 
+  };
+
+  return Lesion
 }

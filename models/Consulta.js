@@ -1,5 +1,3 @@
-const db = require('../models')
-
 module.exports = (sequelize, DataTypes) => {
 
   const Consulta = sequelize.define("consulta", {
@@ -24,6 +22,13 @@ module.exports = (sequelize, DataTypes) => {
       freezeTableName: true
     }
   )
+
+  Consulta.associate = function (db) {
+    db.consulta.belongsTo(db.lesion, {
+      foreignKey: "lesionId",
+      as: "lesion"
+    })
+  };
 
   return Consulta
 }

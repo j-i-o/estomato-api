@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  
+
   const Paciente = sequelize.define("paciente", {
     nombre: {
       type: DataTypes.STRING,
@@ -18,12 +18,19 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
   },
-  { 
-    timestamps: false,
-    freezeTableName: true
-  }
+    {
+      timestamps: false,
+      freezeTableName: true
+    }
   )
-  //! VER TEMA DE ASOCIACIONES FUERA DEL INDEX
-  
+
+  Paciente.associate = function (db) {
+    db.paciente.belongsTo(db.sexo, {
+      foreignKey: "sexoId",
+      as: "sexo"
+    })
+    db.paciente.hasMany(db.lesion, { as: "lesion" })
+  };
+
   return Paciente
 }

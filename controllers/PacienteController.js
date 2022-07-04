@@ -2,18 +2,20 @@ const db = require('../models')
 
 const Paciente = db.paciente
 
-const addPaciente = async (req, res) => {
+const addPaciente = async (req, res ) => {
 
-  let info = {
-    nombre: req.body.nombre,
-    apellido: req.body.apellido,
-    edad: req.body.edad,
-    observacion: req.body.observacion ?? '',
-    sexoId: req.body.sexo
+  const paciente = await Paciente.create({
+    nombre: req.body.paciente.nombre,
+    apellido: req.body.paciente.apellido,
+    edad: req.body.paciente.edad,
+    observacion: req.body.paciente.observacion ?? '',
+    sexoId: req.body.paciente.sexo
+  })
+  if(req.body.full){
+    return paciente
+  }else{
+    res.status(200).send(paciente)
   }
-
-  const paciente = await Paciente.create(info)
-  res.status(200).send(paciente)
 }
 
 const getPacientes = async (req, res) => {

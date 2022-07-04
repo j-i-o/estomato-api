@@ -1,17 +1,20 @@
 module.exports = (sequelize, DataTypes) => {
-  
-  const ubicacion = sequelize.define("ubicacion", {
+
+  const Ubicacion = sequelize.define("ubicacion", {
     valor: {
       type: DataTypes.STRING,
       allowNull: false
     }
   },
-  { 
-    timestamps: false,
-    freezeTableName: true
-  }
+    {
+      timestamps: false,
+      freezeTableName: true
+    }
   )
 
-  return ubicacion
-  
+  Ubicacion.associate = function (db) {
+    db.ubicacion.belongsToMany(db.lesion, { through: 'LesionUbicacion' })
+  };
+
+  return Ubicacion
 }

@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const { json } = require('express/lib/response')
 const res = require('express/lib/response')
+const bodyParser = require('body-parser')
 
 const app = express()
 
@@ -15,6 +16,8 @@ app.use(cors(corOptions))
 app.use(express.json())
 
 app.use(express.urlencoded({ extended: true }))
+
+app.use(bodyParser.json())
 
 // Router
 const pacienteRouter = require('./routes/pacienteRouter.js')

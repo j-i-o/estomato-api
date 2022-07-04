@@ -3,19 +3,22 @@ const db = require('../models')
 const Consulta = db.consulta
 
 const addConsulta = async (req, res) => {
-  let info = {
-    lesionId: req.body.lesion,
-    fecha: req.body.fecha,
-    dx: req.body.dx,
-    tto: req.body.tto,
-    observacion: req.body.observacion,
-  }
-  try {
-    const consulta = await Consulta.create(info)
 
-    const lesion = await db.lesion.findByPk(req.body.lesion)
-    lesion.update({ ultAct: new Date() })
-    res.status(200).send(consulta)
+  try {
+    const consulta = await Consulta.create({
+      lesionId: req.body.consulta.lesion,
+      fecha: req.body.consulta.fecha,
+      dx: req.body.consulta.dx,
+      tto: req.body.consulta.tto,
+      observacion: req.body.consulta.observacion,
+    })
+    if (req.body.full) {
+      return consulta
+    } else {
+      const lesion = await db.lesion.findByPk(req.body.lesion)
+      lesion.update({ ultAct: req.body.consulta.fecha })
+      res.status(200).send(consulta)
+    }
   } catch (error) {
     console.log("Error: " + error.message)
   }
