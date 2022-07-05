@@ -12,21 +12,40 @@ const consultaController = require('../controllers/consultaController')
   consulta:
     fecha, dx, tto, observacion
 */
-const createPacienteCompleto = async (req, res) => {
+const createPacienteFull = async (req, res) => {
 
-  try{
+  try {
     req.body.full = true
+    req.body.pac = true
     let paciente = await pacienteController.addPaciente(req, res)
     req.body.lesion.paciente = paciente.id
+    let lesion = await createLesionFull(req, res)
+
+    paciente.setDataValue('lesion', lesion)
+
+    res.status(200).send(paciente)
+  } catch (error) {
+    console.log("Error: " + error.message)
+  }
+}
+
+const createLesionFull = async (req, res) => {
+  try {
+    req.body.full = true
     let lesion = await lesionController.addLesion(req, res)
     req.body.consulta.lesion = lesion.id
     let consulta = await consultaController.addConsulta(req, res)
-  
-    paciente.setDataValue('lesion', lesion)
-    paciente.setDataValue('consulta', consulta)
-  
-    res.status(200).send(paciente)
-  }catch(error){
+
+    lesion.setDataValue('consulta', consulta)
+
+    if(req.body.pac){
+      console.log("PAC TRUE", pac)
+      return lesion
+    }else{
+      console.log("PAC FALSE")
+      res.status(200).send(lesion)
+    }
+  } catch (error) {
     console.log("Error: " + error.message)
   }
 }
@@ -58,6 +77,7 @@ const getHome = async (req, res) => {
 }
 
 module.exports = {
-  createPacienteCompleto,
+  createPacienteFull,
+  createLesionFull,
   getHome,
 }
