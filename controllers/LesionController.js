@@ -9,7 +9,7 @@ const Lesion = db.lesion
   ubicacion = [int]
 */
 const addLesion = async (req, res) => {
-  try{
+  try {
     const lesion = await Lesion.create({
       pacienteId: req.body.lesion.paciente,
       estadoId: req.body.lesion.estado,
@@ -21,13 +21,13 @@ const addLesion = async (req, res) => {
       const ubicacion = await db.ubicacion.findByPk(id)
       await lesion.addUbicacion(ubicacion)
     });
-  
-    if(req.body.full){
+
+    if (req.body.full) {
       return lesion
-    }else{
+    } else {
       res.status(200).send(lesion)
     }
-  }catch(error){
+  } catch (error) {
     console.log("ERROR: ", error.message)
   }
 }
@@ -49,38 +49,75 @@ const getLesiones = async (req, res) => {
 
 const getLesionById = async (req, res) => {
 
-  let id = req.params.id
-  let lesion = await Lesion.findOne({ where: { id: id }, include: db.ubicacion })
-  res.status(200).send(lesion)
+  let lesion = await Lesion.findOne({ where: { id: req.params.id }, include: db.ubicacion })
+  if (lesion) {
+    res.status(200).send(lesion)
+  } else {
+    res.status(404).send("No existe ningúna lesión con id = " + req.params.id)
+  }
+}
+
+const getLesionByPacienteId = async (req, res) => {
+
+  let paciente = await db.paciente.findByPk(req.params.id)
+  if (paciente) {
+    const lesion = await Lesion.findAll({
+      include: [
+        "nombLesion",
+        "paciente",
+        "estado",
+        { model: db.ubicacion, through: { attributes: [] } }
+      ],
+      where: { pacienteId: paciente.id },
+      order: [['ultAct', 'DESC']],
+    })
+    
+    res.status(200).send(lesion)
+  } else {
+    res.status(404).send("No existe ningún paciente con id = " + req.params.id)
+  }
 }
 
 const deleteLesion = async (req, res) => {
 
-  let id = req.params.id
-  try {
-    await db.consulta.destroy({
-      where: { lesionId: id }
-    })
-    await Lesion.destroy({
-      where: { id: id },
-    })
-    res.status(200).send("Lesión id Nº " + id + " borrada y todas sus consultas")
-  } catch (error) {
-    console.log("Error: " + error.message)
+  const lesion = Lesion.findByPk(req.params.id)
+  if (lesion) {
+    try {
+      await db.consulta.destroy({
+        where: { lesionId: lesion.id }
+      })
+      await Lesion.destroy({
+        where: { id: lesion.id },
+      })
+      res.status(200).send("Lesión id Nº " + lesion.id + " borrada y todas sus consultas")
+    } catch (error) {
+      console.log("Error: " + error.message)
+    }
+  } else {
+    res.status(404).send("No existe ningúna lesión con id = " + req.params.id)
   }
 }
 
 const updateLesion = async (req, res) => {
 
-  if (Object.keys(req.body).includes("pacienteId")) {
-    res.status(400).send("No es posible cambiar el paciente que esté ligado a la lesión")
-  } else {
-    if (Object.keys(req.body).every(el => Object.keys(Lesion.rawAttributes).includes(el))) {
-      const lesion = await Lesion.update(req.body, { where: { id: req.params.id } })
-      res.status(200).send("Datos actualizados correctamente")
+  const lesion = Lesion.findByPk(req.params.id)
+  if (lesion) {
+    if (Object.keys(req.body).includes("pacienteId")) {
+      res.status(400).send("No es posible cambiar el paciente que esté ligado a la lesión")
     } else {
-      res.status(400).send("Datos incorrectos para la actualización")
+      try {
+        if (Object.keys(req.body).every(el => Object.keys(Lesion.rawAttributes).includes(el))) {
+          const lesion = await Lesion.update(req.body, { where: { id: req.params.id } })
+          res.status(200).send("Datos actualizados correctamente")
+        } else {
+          res.status(400).send("Datos incorrectos para la actualización")
+        }
+      } catch (error) {
+        console.log("Error: " + error.message)
+      }
     }
+  } else {
+    res.status(404).send("No existe ningúna lesión con id = " + req.params.id)
   }
 }
 
@@ -88,6 +125,7 @@ module.exports = {
   addLesion,
   getLesiones,
   getLesionById,
+  getLesionByPacienteId,
   deleteLesion,
   updateLesion,
 }

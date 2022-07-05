@@ -7,6 +7,8 @@ router.get('/getLesiones', lesionController.getLesiones)
 
 router.put('/:id', lesionController.updateLesion)
 
+router.get('/getLesiones/:id', lesionController.getLesionByPacienteId)
+
 router.get('/:id', lesionController.getLesionById)
 
 router.delete('/:id', lesionController.deleteLesion)

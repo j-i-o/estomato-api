@@ -1,4 +1,5 @@
 const db = require('../models')
+const Lesion = require('../models/Lesion')
 
 const Consulta = db.consulta
 
@@ -12,11 +13,12 @@ const addConsulta = async (req, res) => {
       tto: req.body.consulta.tto,
       observacion: req.body.consulta.observacion,
     })
+    //Se necesita actualizar algo en el registro para que actualice automaticamente el updatedAt
+    const lesion = await db.lesion.findByPk(req.body.consulta.lesion)
+    lesion.update({ ultAct: req.body.consulta.fecha })
     if (req.body.full) {
       return consulta
     } else {
-      const lesion = await db.lesion.findByPk(req.body.lesion)
-      lesion.update({ ultAct: req.body.consulta.fecha })
       res.status(200).send(consulta)
     }
   } catch (error) {
@@ -35,44 +37,61 @@ const getConsultas = async (req, res) => {
 
 const getConsultasByLesionId = async (req, res) => {
 
-  let consultas = await Consulta.findAll({
-    where: { lesionId: req.params.id },
-    include: ["lesion"],
-    order: [['createdAt', 'DESC']]
-  })
-  res.status(200).send(consultas)
+  const lesion = await db.lesion.findByPk(req.params.id)
+  if(lesion){
+    let consultas = await Consulta.findAll({
+      where: { lesionId: lesion.id },
+      include: ["lesion"],
+      order: [['createdAt', 'DESC']]
+    })
+    res.status(200).send(consultas)
+  }else{
+    res.status(404).send("No existe ninguna lesión con id = " + req.params.id)
+  }
 }
 
 const getConsultaById = async (req, res) => {
 
-  let id = req.params.id
-  let consulta = await Consulta.findOne({
-    where: { id: id },
+  const consulta = await Consulta.findOne({
+    where: { id: req.params.id },
     include: ["lesion"]
   })
-  res.status(200).send(consulta)
+  if(consulta){
+    res.status(200).send(consulta)
+  }else{
+    res.status(404).send("No existe ninguna consulta con id = " + req.params.id)
+  }
 }
 
 const deleteConsulta = async (req, res) => {
 
-  let id = req.params.id
-  try {
-    await Consulta.destroy({
-      where: { id: id },
-    })
-    res.status(200).send("Consulta id Nº " + id + " borrada")
-  } catch (error) {
-    console.log("Error: " + error.message)
+  const consulta = Consulta.findByPk(req.params.id)
+  if(consulta){
+    try {
+      await Consulta.destroy({
+        where: { id: id },
+      })
+      res.status(200).send("Consulta id Nº " + consulta.id + " borrada")
+    } catch (error) {
+      console.log("Error: " + error.message)
+    }
+  }else{
+    res.status(404).send("No existe ninguna consulta con id = " + req.params.id)
   }
 }
 
 const updateConsulta = async (req, res) => {
 
-  if (Object.keys(req.body).every(el => Object.keys(Consulta.rawAttributes).includes(el))) {
-    await Consulta.update(req.body, { where: { id: req.params.id } })
-    res.status(200).send("Datos actualizados correctamente")
-  } else {
-    res.status(400).send("Datos incorrectos para la actualización")
+  const consulta = Consulta.findByPk(req.params.id)
+  if(consulta){
+    if (Object.keys(req.body).every(el => Object.keys(Consulta.rawAttributes).includes(el))) {
+      await Consulta.update(req.body, { where: { id: consulta.id } })
+      res.status(200).send("Datos actualizados correctamente")
+    } else {
+      res.status(400).send("Datos incorrectos para la actualización")
+    }
+  }else{
+    res.status(404).send("No existe ninguna consulta con id = " + req.params.id)
   }
 }
 
