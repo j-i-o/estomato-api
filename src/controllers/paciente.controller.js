@@ -64,14 +64,17 @@ module.exports = {
 
   updatePaciente: async (req, res) => {
     const paciente = await models.paciente.findByPk(req.params.id);
+    const body = req.body.paciente
     if (paciente) {
+      console.log("PACIENTE: ", paciente);
+      console.log("REQ: ", req.body);
       try {
         if (
-          Object.keys(req.body).every((el) =>
+          Object.keys(body).every((el) =>
             Object.keys(models.paciente.rawAttributes).includes(el)
           )
         ) {
-          await models.paciente.update(req.body, { where: { id: req.params.id } });
+          await models.paciente.update(body, { where: { id: req.params.id } });
           res.status(200).send("Datos actualizados correctamente");
         } else {
           res.status(400).send("Datos incorrectos para la actualización");

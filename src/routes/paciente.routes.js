@@ -8,7 +8,7 @@ router.post('/', validate(pacienteScheme.crearPaciente), pacienteController.addP
 router.get('/', pacienteController.getPacientes)
 router.get('/:id', pacienteController.getPacienteById)
 
-router.put('/:id', pacienteController.updatePaciente)
+router.put('/:id', validate(pacienteScheme.updatePaciente), pacienteController.updatePaciente)
 
 router.delete('/:id', pacienteController.deletePaciente)
 
