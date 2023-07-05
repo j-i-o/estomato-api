@@ -1,16 +1,27 @@
 # estomato-api
 
-Instalar:
-  `npm install`
+1) Instalar:
 
-Buildear la bbdd:
-  Crear el modelo:
+    `npm install`
+
+-------
+
+2) Buildear la bbdd
+
+    2a) Crear el modelo:
+  
     `npm run db:create`
-  Seedear la base:  
+    
+    2b) Seedear la base:  
+  
     `npm run db:seed`
 
-Correr:
-  Normal:
+-------
+
+3) Correr:
+  
     `npm start`
-  Nodemon:
+
+    alt: Correr con nodemon:
+
     `npm run dev`
