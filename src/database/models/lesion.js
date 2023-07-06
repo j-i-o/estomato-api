@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       ultima_consulta: {
         type: DataTypes.DATE,
-        allowNull: false
+        defaultValue: null,
+        allowNull: true
       },
       createdAt: {
         type: DataTypes.DATE,

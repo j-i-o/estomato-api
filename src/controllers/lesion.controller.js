@@ -10,12 +10,10 @@ const Lesion = models.lesion
 */
 const addLesion = async (req, res) => {
   try {
-    const ultCon = new Date(req.body.lesion.ultima_consulta)
     const lesion = await Lesion.create({
       pacienteId: req.body.lesion.paciente,
       estadoId: req.body.lesion.estado,
       nombLesionId: req.body.lesion.nombLesion,
-      ultima_consulta: ultCon
     })
     let ubicaciones = req.body.lesion.ubicacion
     ubicaciones.forEach(async id => {
