@@ -66,8 +66,6 @@ module.exports = {
     const paciente = await models.paciente.findByPk(req.params.id);
     const body = req.body.paciente
     if (paciente) {
-      console.log("PACIENTE: ", paciente);
-      console.log("REQ: ", req.body);
       try {
         if (
           Object.keys(body).every((el) =>
