@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
       as: "estado",
     });
     Lesion.hasMany(models.consulta, { as: "consulta" });
-    Lesion.belongsToMany(models.ubicacion, { through: "LesionUbicacion" });
+    Lesion.belongsToMany(models.ubicacion, { through: "lesionUbicacion" });
   };
 
   return Lesion;

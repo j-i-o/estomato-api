@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Ubicacion.associate = models => {
-    Ubicacion.belongsToMany(models.lesion, { through: "LesionUbicacion" });
+    Ubicacion.belongsToMany(models.lesion, { through: "lesionUbicacion" });
   };
 
   return Ubicacion;
